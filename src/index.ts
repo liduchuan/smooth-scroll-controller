@@ -1,20 +1,16 @@
+import { AutoFrameRateDetector } from "./AutoFrameRateDetector";
+
 interface SmoothScrollControllerOptions {
   container: HTMLElement;
 }
-export default class SmoothScrollController {
+export default class SmoothScrollController extends AutoFrameRateDetector {
   private options: SmoothScrollControllerOptions;
 
   private timer: NodeJS.Timeout | null = null;
 
-  private measureFrameTime(): Promise<number> {
-    return new Promise((resolve) => {
-      let startTime = performance.now();
-      requestAnimationFrame(() => {
-        let endTime = performance.now();
-        let frameTime = endTime - startTime;
-        resolve(frameTime);
-      });
-    });
+  private async measureFrameTime(): Promise<number> {
+    const result = await this.getPreciseFrameRate();
+    return result;
   }
 
   private get container() {
@@ -22,6 +18,7 @@ export default class SmoothScrollController {
   }
 
   constructor(options: SmoothScrollControllerOptions) {
+    super();
     this.options = options;
     if (!this.options.container) {
       throw new Error("container is required");
@@ -32,6 +29,7 @@ export default class SmoothScrollController {
     if (this.timer) {
       return;
     }
+    const frameTime = 1000 / (await this.measureFrameTime());
     this.timer = setInterval(async () => {
       if (this.container.scrollTop + this.container.clientHeight >= this.container.scrollHeight) {
         this.timer && clearInterval(this.timer);
@@ -39,11 +37,12 @@ export default class SmoothScrollController {
         return;
       }
       this.container.scrollTop += 0.5;
-    }, await this.measureFrameTime());
+    }, frameTime);
   }
 
   public async scrollBottomImmediate() {
-    await this.measureFrameTime();
-    this.container.scrollTop = this.container.scrollHeight;
+    requestIdleCallback(() => {
+      this.container.scrollTop = this.container.scrollHeight;
+    }, { timeout: 1000 });
   }
 }

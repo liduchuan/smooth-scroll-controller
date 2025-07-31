@@ -40,7 +40,8 @@
     "build": "unbuild",
     "start": "onchange 'src/**/*.ts' -- npm run build",
     "test": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "npm run build"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

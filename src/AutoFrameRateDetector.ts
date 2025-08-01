@@ -47,7 +47,7 @@ export class AutoFrameRateDetector {
   private readonly cacheValidityMs: number = 5000;
 
   constructor() {
-    this.getPreciseFrameRate();
+    this.startRealtimeMonitoring();
   }
 
   /**
@@ -74,6 +74,7 @@ export class AutoFrameRateDetector {
       const frameRate = await this.detectionPromise;
       this.cachedFrameRate = frameRate;
       this.cacheTimestamp = Date.now();
+      console.debug(`Detected frame rate: ${frameRate}Hz`);
       return frameRate;
     } finally {
       this.isDetecting = false;
@@ -226,7 +227,6 @@ export class AutoFrameRateDetector {
    * 实时监控帧率变化
    */
   public startRealtimeMonitoring(
-    callback: FrameRateCallback,
     interval: number = 1000
   ): StopMonitoringFunction {
     let isMonitoring: boolean = true;
@@ -235,9 +235,8 @@ export class AutoFrameRateDetector {
       if (!isMonitoring) return;
 
       try {
-        this.cachedFrameRate = null; // 强制重新检测
-        const currentFrameRate: number = await this.getPreciseFrameRate();
-        callback(currentFrameRate);
+        this.cachedFrameRate = null;
+        await this.getPreciseFrameRate();
       } catch (error) {
         console.warn('Frame rate monitoring error:', error);
       }

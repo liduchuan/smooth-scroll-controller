@@ -30,13 +30,15 @@ export default class SmoothScrollController extends AutoFrameRateDetector {
       return;
     }
     const frameTime = 1000 / (await this.measureFrameTime());
-    this.timer = setInterval(async () => {
-      if (this.container.scrollTop + this.container.clientHeight >= this.container.scrollHeight) {
-        this.timer && clearInterval(this.timer);
-        this.timer = null;
-        return;
-      }
-      this.container.scrollTop += 0.5;
+    this.timer = setInterval(() => {
+      requestAnimationFrame(() => {
+        if (this.container.scrollTop + this.container.clientHeight >= this.container.scrollHeight) {
+          this.timer && clearInterval(this.timer);
+          this.timer = null;
+          return;
+        }
+        this.container.scrollTop += 0.5;
+      })
     }, frameTime);
   }
 

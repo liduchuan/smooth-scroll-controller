@@ -796,7 +796,6 @@ ${getRandomText(15, 25)}
               }
 
               // Scroll to bottom
-              scrollController.scrollBottom();
             } else {
               // Final rendering
               try {
@@ -825,7 +824,6 @@ ${getRandomText(15, 25)}
       function showTypingIndicator() {
         typingIndicator.classList.add("active");
         chatMessages.appendChild(typingIndicator);
-        scrollController.scrollBottom();
       }
 
       // Hide typing indicator
